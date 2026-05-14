@@ -1,155 +1,527 @@
+Here's the complete, single-file HTML code for the API Response Time Analyzer:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="API Response Time Analyzer - A tool for web developers to analyze and visualize API response times to identify performance bottlenecks.">
-  <title>API Response Time Analyzer</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f9;
-      color: #333;
-    }
-    .container {
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 20px;
-      background: #fff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-    }
-    h1 {
-      text-align: center;
-      color: #444;
-    }
-    label {
-      display: block;
-      margin: 15px 0 5px;
-      font-weight: bold;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .results {
-      margin-top: 20px;
-    }
-    canvas {
-      width: 100%;
-      height: 300px;
-    }
-    footer {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 0.9em;
-      color: #666;
-    }
-    @media (max-width: 600px) {
-      .container {
-        margin: 10px;
-        padding: 10px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free tool to analyze and visualize API response times. Helps developers optimize API performance with detailed metrics and graphs.">
+    <title>API Response Time Analyzer | Developer Tool by MiniAgents.app</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --text: #2b2d42;
+            --text-light: #8d99ae;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+            --success: #4cc9f0;
+            --error: #f72585;
+            --warning: #f8961e;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text: #f8f9fa;
+                --text-light: #adb5bd;
+                --bg: #212529;
+                --card-bg: #2b2d42;
+                --border: #495057;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+            }
+        }
+
+        input[type="url"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: var(--card-bg);
+            color: var(--text);
+        }
+
+        button {
+            padding: 12px 25px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        button:disabled {
+            background-color: var(--text-light);
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .secondary-btn:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .results {
+            display: none;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 5px 0;
+        }
+
+        .metric-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .response-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+        }
+
+        .response-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .response-item:last-child {
+            border-bottom: none;
+        }
+
+        .response-status {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-success {
+            background-color: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .status-error {
+            background-color: rgba(247, 37, 133, 0.2);
+            color: var(--error);
+        }
+
+        .status-warning {
+            background-color: rgba(248, 150, 30, 0.2);
+            color: var(--warning);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: var(--error);
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <!-- ADSENSE_PLACEHOLDER -->
-  <div class="container">
-    <h1>API Response Time Analyzer</h1>
-    <label for="apiEndpoint">API Endpoint:</label>
-    <input type="text" id="apiEndpoint" placeholder="https://api.example.com/endpoint">
-    <button onclick="analyzeResponseTime()">Analyze Response Time</button>
-    <div class="results">
-      <h2>Results</h2>
-      <canvas id="responseTimeChart"></canvas>
-      <p>Average Response Time: <span id="averageTime">-</span> ms</p>
-      <p>Median Response Time: <span id="medianTime">-</span> ms</p>
-      <button onclick="exportResults()">Export Results</button>
+    <div class="container">
+        <!-- ADSENSE_PLACEHOLDER -->
+        
+        <header>
+            <h1>API Response Time Analyzer</h1>
+            <p class="subtitle">Test and visualize API endpoint performance with detailed response time metrics</p>
+        </header>
+
+        <div class="card">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="input-group">
+                <input type="url" id="apiUrl" placeholder="Enter API endpoint URL (e.g., https://api.example.com/data)" required>
+                <button id="testBtn">Test API</button>
+            </div>
+            <div class="input-group">
+                <input type="number" id="requestCount" min="1" max="50" value="10" placeholder="Number of requests (1-50)">
+                <button id="advancedBtn" class="secondary-btn">Advanced Options</button>
+            </div>
+            <div id="advancedOptions" style="display: none; margin-top: 15px;">
+                <div class="input-group">
+                    <select id="httpMethod" style="padding: 12px 15px; border: 1px solid var(--border); border-radius: 5px; background-color: var(--card-bg); color: var(--text);">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                        <option value="PATCH">PATCH</option>
+                    </select>
+                    <input type="text" id="requestHeaders" placeholder="Headers (JSON format)" style="flex: 1; padding: 12px 15px; border: 1px solid var(--border); border-radius: 5px; font-size: 1rem; background-color: var(--card-bg); color: var(--text);">
+                    <input type="text" id="requestBody" placeholder="Request body (JSON format)" style="flex: 1; padding: 12px 15px; border: 1px solid var(--border); border-radius: 5px; font-size: 1rem; background-color: var(--card-bg); color: var(--text);">
+                </div>
+            </div>
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>Testing API endpoint...</p>
+            </div>
+        </div>
+
+        <div class="card results" id="resultsSection">
+            <h2>Performance Analysis</h2>
+            <div class="metrics">
+                <div class="metric-card">
+                    <div class="metric-label">Average Response Time</div>
+                    <div class="metric-value" id="avgTime">0ms</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Fastest Response</div>
+                    <div class="metric-value" id="fastestTime">0ms</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Slowest Response</div>
+                    <div class="metric-value" id="slowestTime">0ms</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Success Rate</div>
+                    <div class="metric-value" id="successRate">100%</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 20px;">Response Time Chart</h3>
+            <div class="chart-container">
+                <canvas id="responseChart"></canvas>
+            </div>
+
+            <h3>Individual Responses</h3>
+            <div class="response-list" id="responseList"></div>
+
+            <div class="actions" style="margin-top: 20px;">
+                <button id="copyBtn" class="secondary-btn">Copy Results</button>
+                <button id="exportBtn" class="secondary-btn">Export as JSON</button>
+            </div>
+        </div>
     </div>
-  </div>
-  <footer>Free tool by MiniAgents.app</footer>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const ctx = document.getElementById('responseTimeChart').getContext('2d');
-    let chart;
 
-    async function analyzeResponseTime() {
-      const endpoint = document.getElementById('apiEndpoint').value;
-      if (!endpoint) return alert('Please enter a valid API endpoint.');
+    <footer>
+        Free tool by <a href="https://minigents.app" style="color: var(--primary); text-decoration: none;">MiniAgents.app</a>
+    </footer>
 
-      const responseTimes = [];
-      for (let i = 0; i < 5; i++) {
-        const startTime = performance.now();
-        try {
-          await fetch(endpoint);
-          const endTime = performance.now();
-          responseTimes.push(endTime - startTime);
-        } catch (error) {
-          alert('Failed to fetch the API endpoint.');
-          return;
-        }
-      }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const apiUrlInput = document.getElementById('apiUrl');
+            const testBtn = document.getElementById('testBtn');
+            const requestCountInput = document.getElementById('requestCount');
+            const advancedBtn = document.getElementById('advancedBtn');
+            const advancedOptions = document.getElementById('advancedOptions');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultsSection = document.getElementById('resultsSection');
+            const errorMessage = document.getElementById('errorMessage');
+            const avgTimeEl = document.getElementById('avgTime');
+            const fastestTimeEl = document.getElementById('fastestTime');
+            const slowestTimeEl = document.getElementById('slowestTime');
+            const successRateEl = document.getElementById('successRate');
+            const responseList = document.getElementById('responseList');
+            const copyBtn = document.getElementById('copyBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const httpMethod = document.getElementById('httpMethod');
+            const requestHeaders = document.getElementById('requestHeaders');
+            const requestBody = document.getElementById('requestBody');
 
-      const average = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
-      const median = responseTimes.sort((a, b) => a - b)[Math.floor(responseTimes.length / 2)];
+            let responseChart = null;
+            let testResults = [];
 
-      document.getElementById('averageTime').textContent = average.toFixed(2);
-      document.getElementById('medianTime').textContent = median.toFixed(2);
+            // Toggle advanced options
+            advancedBtn.addEventListener('click', function() {
+                advancedOptions.style.display = advancedOptions.style.display === 'none' ? 'block' : 'none';
+                advancedBtn.textContent = advancedOptions.style.display === 'none' ? 'Advanced Options' : 'Hide Options';
+            });
 
-      if (chart) chart.destroy();
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: responseTimes.map((_, i) => `Request ${i + 1}`),
-          datasets: [{
-            label: 'Response Time (ms)',
-            data: responseTimes,
-            borderColor: '#007bff',
-            fill: false
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true
+            // Test API endpoint
+            testBtn.addEventListener('click', async function() {
+                const url = apiUrlInput.value.trim();
+                const count = parseInt(requestCountInput.value);
+                
+                if (!url) {
+                    showError('Please enter a valid API URL');
+                    return;
+                }
+                
+                if (isNaN(count) || count < 1 || count > 50) {
+                    showError('Please enter a number between 1 and 50 for request count');
+                    return;
+                }
+
+                try {
+                    // Validate advanced options if shown
+                    if (advancedOptions.style.display === 'block') {
+                        if (requestHeaders.value) {
+                            try {
+                                JSON.parse(requestHeaders.value);
+                            } catch (e) {
+                                showError('Invalid headers format. Must be valid JSON.');
+                                return;
+                            }
+                        }
+                        
+                        if (requestBody.value) {
+                            try {
+                                JSON.parse(requestBody.value);
+                            } catch (e) {
+                                showError('Invalid request body format. Must be valid JSON.');
+                                return;
+                            }
+                        }
+                    }
+
+                    clearError();
+                    loadingIndicator.style.display = 'block';
+                    testBtn.disabled = true;
+                    resultsSection.style.display = 'none';
+                    
+                    // Prepare request options
+                    const options = {
+                        method: httpMethod.value,
+                        headers: requestHeaders.value ? JSON.parse(requestHeaders.value) : undefined,
+                        body: requestBody.value ? JSON.stringify(JSON.parse(requestBody.value)) : undefined
+                    };
+
+                    // Run tests
+                    testResults = await runApiTests(url, count, options);
+                    
+                    // Display results
+                    displayResults(testResults);
+                    resultsSection.style.display = 'block';
+                } catch (error) {
+                    showError(error.message || 'An error occurred while testing the API');
+                } finally {
+                    loadingIndicator.style.display = 'none';
+                    testBtn.disabled = false;
+                }
+            });
+
+            // Copy results to clipboard
+            copyBtn.addEventListener('click', function() {
+                const summary = `API Response Time Analysis for ${apiUrlInput.value}:
+- Average Response Time: ${avgTimeEl.textContent}
+- Fastest Response: ${fastestTimeEl.textContent}
+- Slowest Response: ${slowestTimeEl.textContent}
+- Success Rate: ${successRateEl.textContent}`;
+
+                navigator.clipboard.writeText(summary).then(() => {
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                    }, 2000);
+                });
+            });
+
+            // Export results as JSON
+            exportBtn.addEventListener('click', function() {
+                const data = {
+                    apiUrl: apiUrlInput.value,
+                    testResults: testResults,
+                    summary: {
+                        averageResponseTime: avgTimeEl.textContent,
+                        fastestResponse: fastestTimeEl.textContent,
+                        slowestResponse: slowestTimeEl.textContent,
+                        successRate: successRateEl.textContent
+                    }
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `api-performance-${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            // Helper functions
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
             }
-          }
-        }
-      });
-    }
 
-    function exportResults() {
-      const average = document.getElementById('averageTime').textContent;
-      const median = document.getElementById('medianTime').textContent;
-      const data = `Average Response Time: ${average} ms\nMedian Response Time: ${median} ms`;
-      const blob = new Blob([data], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'api_response_time_results.txt';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-  </script>
-</body>
-</html>
+            function clearError() {
+                errorMessage.style.display = 'none';
+                errorMessage.textContent = '';
+            }
+
+            async function runApiTests(url, count, options) {
+                const results = [];
+                
+                for (let i = 0; i < count; i++) {
+                    try {
+                        const startTime = performance.now();
+                        const response = await fetch(url, options);
+                        const endTime = performance.now();
+                        const duration = Math.round(endTime - startTime);
+                        
+                        let statusClass = 'status-success';
+                        if (!response.ok) {
+                            statusClass = response.status >= 500 ? 'status-error' : 'status-warning';
+                        }
+                        
+                        results.push({
+                            requestNumber: i + 1,
+                            status: response.status,
+                            statusText: response.statusText,
+                            duration: duration,
+                            statusClass: statusClass,
+                            timestamp: new Date().toISOString()
+                        });
+                    } catch (error) {
+                        results.push({
+                            requestNumber: i + 1,
+                            status: 0,
+                            statusText: 'Network Error',
+                            duration: 0,
+                            statusClass: 'status-error',
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                }
+                
+                return results;
+            }
+
+            function displayResults(results) {
+                // Calculate metrics
+                const successfulRequests = results.filter(r => r.status >= 200 && r.status < 300);
+                const durations = results.map(r => r.duration).filter(d => d > 0);
+                const avgDuration = durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : 0;
+                const minDuration = durations.length ? Math.min(...durations) : 0;
+                const maxDuration = durations.length ? Math.max(...durations) : 0;
+                const successRate = Math.round((successfulRequests.length / results.length) * 100);
+                
+                // Update metric displays
+                avgTimeEl.textContent = `${avgDuration}ms`;
+                fastestTimeEl.textContent = `${minDuration}ms`;
+                slowestTimeEl.textContent
