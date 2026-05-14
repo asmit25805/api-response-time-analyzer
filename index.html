@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="API Response Time Analyzer - A tool for web developers to analyze and visualize API response times to identify performance bottlenecks.">
+  <title>API Response Time Analyzer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    h1 {
+      text-align: center;
+      color: #444;
+    }
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .results {
+      margin-top: 20px;
+    }
+    canvas {
+      width: 100%;
+      height: 300px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    @media (max-width: 600px) {
+      .container {
+        margin: 10px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ADSENSE_PLACEHOLDER -->
+  <div class="container">
+    <h1>API Response Time Analyzer</h1>
+    <label for="apiEndpoint">API Endpoint:</label>
+    <input type="text" id="apiEndpoint" placeholder="https://api.example.com/endpoint">
+    <button onclick="analyzeResponseTime()">Analyze Response Time</button>
+    <div class="results">
+      <h2>Results</h2>
+      <canvas id="responseTimeChart"></canvas>
+      <p>Average Response Time: <span id="averageTime">-</span> ms</p>
+      <p>Median Response Time: <span id="medianTime">-</span> ms</p>
+      <button onclick="exportResults()">Export Results</button>
+    </div>
+  </div>
+  <footer>Free tool by MiniAgents.app</footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('responseTimeChart').getContext('2d');
+    let chart;
+
+    async function analyzeResponseTime() {
+      const endpoint = document.getElementById('apiEndpoint').value;
+      if (!endpoint) return alert('Please enter a valid API endpoint.');
+
+      const responseTimes = [];
+      for (let i = 0; i < 5; i++) {
+        const startTime = performance.now();
+        try {
+          await fetch(endpoint);
+          const endTime = performance.now();
+          responseTimes.push(endTime - startTime);
+        } catch (error) {
+          alert('Failed to fetch the API endpoint.');
+          return;
+        }
+      }
+
+      const average = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
+      const median = responseTimes.sort((a, b) => a - b)[Math.floor(responseTimes.length / 2)];
+
+      document.getElementById('averageTime').textContent = average.toFixed(2);
+      document.getElementById('medianTime').textContent = median.toFixed(2);
+
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: responseTimes.map((_, i) => `Request ${i + 1}`),
+          datasets: [{
+            label: 'Response Time (ms)',
+            data: responseTimes,
+            borderColor: '#007bff',
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    function exportResults() {
+      const average = document.getElementById('averageTime').textContent;
+      const median = document.getElementById('medianTime').textContent;
+      const data = `Average Response Time: ${average} ms\nMedian Response Time: ${median} ms`;
+      const blob = new Blob([data], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'api_response_time_results.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
