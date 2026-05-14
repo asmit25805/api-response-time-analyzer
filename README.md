@@ -1,18 +1,18 @@
 # API Response Time Analyzer
 
-> Analyzes and visualizes API response times to identify performance bottlenecks
+> Analyzes and visualizes API response times to help developers optimize API performance
 
 **Niche:** developers  
-**Target User:** web developers optimizing API integration
+**Target User:** backend developers and API designers
 
 ## Features
-- API endpoint input
-- response time graphs
-- average/median response time output
-- export results button
+- enter API endpoint URL
+- response time graph
+- average response time calculator
+- copy result button
 
 ## Monetization
-AdSense + affiliate link to API monitoring tools
+AdSense + affiliate link to API testing and monitoring tools
 
 ## Tech
 single HTML file with vanilla JS and Chart.js library
